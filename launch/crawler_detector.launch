@@ -1,3 +1,3 @@
 <launch>
-<node name="crawler_detector" pkg="crawler_detector" type="crawler_detector_node.py" output="screen"/>
+<node name="crawler_detector" pkg="crawler_detector" type="crawler_detector_node.py" output="screen" args="--checkpoints_dir /home/aeroarms/iri-lab/iri_ws/src/iri/crawler_detector/src/CrawlerDetector/checkpoints"/>
 </launch>

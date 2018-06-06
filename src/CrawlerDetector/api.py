@@ -33,6 +33,10 @@ class CrawlerDetector:
         if self._do_filter_prob:
             self._update_prob_filter(prob)
 
+	# return values
+	if prob is not None and prob <= self._prob_treshold:
+	    uv_max = (-1,-1)
+
         return hm, uv_max
 
     def _preprocess_frame(self, frame, is_bgr):
@@ -118,6 +122,7 @@ class CrawlerDetector:
 
         # display frame
         cv2.imshow('Crawler Detector HM', frame)
+        cv2.waitKey(1)
 
     def _create_img_transform(self):
         transform_list = [transforms.ToTensor(),

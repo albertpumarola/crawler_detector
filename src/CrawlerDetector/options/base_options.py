@@ -1,7 +1,10 @@
 import argparse
 import os
-# from CrawlerDetector.util import util
-from util import util
+
+try:
+    from util import util
+except ImportError:
+    from CrawlerDetector.util import util
 
 import torch
 
