@@ -1,0 +1,30 @@
+------------ Options -------------
+batch_size: 2
+bbs_filename: bbs.pkl
+checkpoints_dir: /home/aeroarms/iri-lab/iri_ws/src/iri/crawler_detector/src/CrawlerDetector/checkpoints
+classifier_threshold: 0.5
+data_dir: /home/apumarola/datasets/Dataset-CrawlerDetection/second/processed/
+dataset_mode: object_hm
+gpu_ids: []
+hms_filename: hms.pkl
+image_size_h: 240
+image_size_w: 320
+images_folder: imgs
+is_train: False
+lambda_bb: 1000
+lambda_prob: 1000
+load_epoch: 277
+lr: 0.0002
+model: object_detector_net_prob
+n_threads_test: 1
+name: pretrained_model
+neg_file_name: neg
+net_image_size: 224
+output_estimation_dir: /media/apumarola/ssd_dataset/object_detector/test
+poses_g_sigma: 0.06
+serial_batches: False
+test_ids_file: test_ids.csv
+test_pos_file_name: test
+train_ids_file: train_ids.csv
+train_pos_file_name: pos
+-------------- End ----------------
