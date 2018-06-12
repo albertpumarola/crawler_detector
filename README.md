@@ -23,3 +23,12 @@ Set path of weights in the launch file (<node>/src/CrawlerDetector/checkpoints)
 ```
 roslaunch crawler_detector crawler_detector.launch 
 ```
+### IMPORTANT
+If the model was correclty loaded the following terminal msg will appear:
+```
+loaded net: ./checkpoints/pretrained_model/net_epoch_277_id_net.pth
+```
+else:
+```
+NOT!! loaded net: ./checkpoints/pretrained_model/net_epoch_0_id_net.pth
+```
