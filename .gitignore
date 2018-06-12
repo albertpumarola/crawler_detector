@@ -103,6 +103,8 @@ ENV/
 .idea/
 
 tests/checkpoints/
+checkpoints/
+!checkpoints/pretrained_model/
 datasets/
 
 *.pyc
