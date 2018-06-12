@@ -12,10 +12,11 @@ from CrawlerDetector.api import CrawlerDetector
 
 class CrawlerDetectorNode:
     def __init__(self):
-        self._detector = CrawlerDetector()
         self.bridge = CvBridge()
         self._cam_sub = rospy.Subscriber("/usb_cam/image_raw/", Image, self.callback, queue_size=1)
         self._pose_pub = rospy.Publisher("/crawler/pose", PoseStamped, queue_size=1)
+	do_display = rospy.get_param("/crawler_detector/do_display_detection") == "True"
+	self._detector = CrawlerDetector(do_display=do_display)
 	self._new_image = False
 
     def detect_crawler(self):
