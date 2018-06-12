@@ -13,15 +13,16 @@ from CrawlerDetector.api import CrawlerDetector
 class CrawlerDetectorNode:
     def __init__(self):
         self.bridge = CvBridge()
-        self._cam_sub = rospy.Subscriber("/usb_cam/image_raw/", Image, self.callback, queue_size=1)
+        self._cam_sub = rospy.Subscriber("/robot/image_raw/", Image, self.callback, queue_size=1)
         self._pose_pub = rospy.Publisher("/crawler/pose", PoseStamped, queue_size=1)
-	do_display = rospy.get_param("/crawler_detector/do_display_detection") == "True"
-	self._detector = CrawlerDetector(do_display=do_display)
+	self._do_display = rospy.get_param("/crawler_detector/do_display_detection") == "True"
+	self._pose_tf = rospy.get_param("/crawler_detector/pose_tf")
 	self._new_image = False
+	self._detector = CrawlerDetector()
 
     def detect_crawler(self):
 	if self._new_image:
-	    hm, uv_max = self._detector.detect(self._image_np, is_bgr=True, do_display_detection=True)
+	    hm, uv_max = self._detector.detect(self._image_np, is_bgr=True, do_display_detection=self._do_display)
 	    self._publish_pose(uv_max)
 	    self._new_image = False
 
@@ -34,7 +35,7 @@ class CrawlerDetectorNode:
 
     def _publish_pose(self, uv):
         msg = PoseStamped()
-        msg.header.frame_id = "/base_link"
+        msg.header.frame_id = self._pose_tf
         msg.header.stamp = rospy.Time.now()
         msg.pose.position.z = 0
         msg.pose.position.x = uv[0]

@@ -1,7 +1,8 @@
 <launch>
-<node name="crawler_detector" pkg="crawler_detector" type="crawler_detector_node.py" output="screen">
-	<!-- <remap from="/usb_cam/image_raw/compressed" to="/robot/image_raw/compressed" /> -->
-	<!-- <remap from="/crawler/pose" to="/crawler/pose_from_deep" /> -->
-	<param name="do_display_detection" type="string" value="False" />
+<node name="crawler_detector" pkg="crawler_detector" type="crawler_detector_node.py" output="screen" args="--checkpoints_dir /home/aeroarms/iri-lab/iri_ws/src/iri/crawler_detector/src/CrawlerDetector/checkpoints">
+	<remap from="/robot/image_raw" to="/usb_cam/image_raw" /> -->
+	<remap from="/crawler/pose" to="/crawler/pose_from_deep" />
+	<param name="do_display_detection" type="string" value="True" />
+	<param name="pose_tf" type="string" value="camera" />
 </node>
 </launch>

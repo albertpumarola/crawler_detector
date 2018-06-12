@@ -2,9 +2,16 @@
 
 ### Install
 ```
+roscd && cd ../src/iri/
 git clone https://github.com/albertpumarola/crawler_detector.git
 cd crawler_detector
 pip install -r requirements.txt
+```
+### Gate
+The gate node to select pose source:
+```
+roscd && cd ../src/iri/
+git clone https://github.com/albertpumarola/crawler_detector_gate.git
 ```
 ### Run Test
 ```
