@@ -103,7 +103,6 @@ ENV/
 .idea/
 
 tests/checkpoints/
-checkpoints/
 datasets/
 
 *.pyc
