@@ -15,7 +15,7 @@ class CrawlerDetectorNode:
         self.bridge = CvBridge()
         self._cam_sub = rospy.Subscriber("/robot/image_raw/", Image, self.callback, queue_size=1)
         self._pose_pub = rospy.Publisher("/crawler/pose", PoseStamped, queue_size=1)
-	self._do_display = rospy.get_param("/crawler_detector/do_display_detection") == "True"
+        self._do_display = rospy.get_param("/crawler_detector/do_display_detection") == True
 	self._pose_tf = rospy.get_param("/crawler_detector/pose_tf")
 	self._new_image = False
 	self._detector = CrawlerDetector()
