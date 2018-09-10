@@ -15,21 +15,21 @@ class CrawlerDetectorNode:
         self.bridge = CvBridge()
         self._cam_sub = rospy.Subscriber("/robot/image_raw/", Image, self.callback, queue_size=1)
         self._pose_pub = rospy.Publisher("/crawler/pose", PoseStamped, queue_size=1)
-	self._do_display = rospy.get_param("/crawler_detector/do_display_detection") == "True"
-	self._pose_tf = rospy.get_param("/crawler_detector/pose_tf")
-	self._new_image = False
-	self._detector = CrawlerDetector()
+        self._do_display = rospy.get_param("/crawler_detector/do_display_detection") == "True"
+        self._pose_tf = rospy.get_param("/crawler_detector/pose_tf")
+        self._new_image = False
+        self._detector = CrawlerDetector()
 
     def detect_crawler(self):
-	if self._new_image:
-	    hm, uv_max = self._detector.detect(self._image_np, is_bgr=True, do_display_detection=self._do_display)
-	    self._publish_pose(uv_max)
-	    self._new_image = False
+        if self._new_image:
+            hm, uv_max = self._detector.detect(self._image_np, is_bgr=True, do_display_detection=self._do_display)
+            self._publish_pose(uv_max)
+            self._new_image = False
 
     def callback(self, ros_data):
-	try:
-           self._image_np = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
-	   self._new_image = True
+        try:
+            self._image_np = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
+            self._new_image = True
         except CvBridgeError as e:
             print(e)
 
@@ -48,8 +48,8 @@ def main(args):
 
     rospy.init_node('crawler_detector', anonymous=True)
     while not rospy.is_shutdown():
-	node.detect_crawler()
-    cv2.destroyAllWindows()
+        node.detect_crawler()
+        cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
