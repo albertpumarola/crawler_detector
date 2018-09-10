@@ -28,13 +28,13 @@ class CrawlerDetectorNode:
 	    self._publish_pose(uv_max)
 	    self._new_image = False
 
-    def callback(self, msg):
+    def cam_info_callback(self, msg):
            self._fx = msg.P[0]
            self._cx = msg.P[2]
            self._fy = msg.P[5]
            self._cy = msg.P[6]
 
-    def cam_info_callback(self, ros_data):
+    def callback(self, ros_data):
 	try:
            self._image_np = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
 	   self._new_image = True
@@ -46,11 +46,12 @@ class CrawlerDetectorNode:
         msg = PoseStamped()
         msg.header.frame_id = self._pose_tf
         msg.header.stamp = rospy.Time.now()
-        msg.pose.position.z = 1.0
-        msg.pose.position.x = (uv[0]-self._cx)/self._fx
-        msg.pose.position.y = (uv[1]-self._cy)/self._fy
         msg.pose.orientation.w = 1.0
-        self._pose_pub.publish(msg)
+        if uv[0]!=-1 and uv[1]!=-1:
+            msg.pose.position.z = 1.0
+            msg.pose.position.x = (uv[0]-self._cx)/self._fx
+            msg.pose.position.y = (uv[1]-self._cy)/self._fy
+            self._pose_pub.publish(msg)
 
 def main(args):
     node = CrawlerDetectorNode()

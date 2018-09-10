@@ -1,7 +1,7 @@
 ------------ Options -------------
 batch_size: 2
 bbs_filename: bbs.pkl
-checkpoints_dir: /home/upc/code/ros_ws/src/iri_code/crawler_detection/crawler_detector/src/CrawlerDetector/checkpoints
+checkpoints_dir: /home/asantamaria/Code/ros/aeroarms_ws/src/iri_code/crawler_detection/crawler_detector/src/CrawlerDetector/checkpoints
 classifier_threshold: 0.5
 data_dir: /home/apumarola/datasets/Dataset-CrawlerDetection/second/processed/
 dataset_mode: object_hm
@@ -13,7 +13,7 @@ images_folder: imgs
 is_train: False
 lambda_bb: 1000
 lambda_prob: 1000
-load_epoch: 278
+load_epoch: 277
 lr: 0.0002
 model: object_detector_net_prob
 n_threads_test: 1
