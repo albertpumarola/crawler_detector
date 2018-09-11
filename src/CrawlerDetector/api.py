@@ -7,46 +7,71 @@ from models.models import ModelsFactory
 import numpy as np
 
 class CrawlerDetector:
-    def __init__(self, prob_threshold = 0.5, do_filter_prob=True):
+    def __init__(self, prob_threshold=0.5, do_filter_prob=True, sliding_window_jump=10):
         self._prob_treshold = prob_threshold
         self._do_filter_prob = do_filter_prob
         self._detected_in_previous_frame = False
+        self._slw_jump = sliding_window_jump
 
         self._opt = TestOptions().parse()  # parse model parameters
         self._img2tensor = self._create_img_transform()  # map RGB cv2 image to Pytorch tensor
         self._model = ModelsFactory.get_by_name(self._opt.model, self._opt)  # get model
         self._model.set_eval()  # set model in test mode
+        self._last_position = (-1, -1)
 
-    def detect(self, frame, is_bgr=False, do_display_detection=False):
+    def track(self, frame, is_bgr=False, do_display_detection=False):
+        # search in last place
+        if self._last_position != (-1, -1):
+            hm, uv_max = self.detect(frame, is_bgr, do_display_detection, self._last_position)
+
+        # search all frame
+        else:
+            for patch in self._yield_patches_from_frame(frame):
+                hm, uv_max = self.detect(patch, is_bgr, do_display_detection)
+                if uv_max != (-1, -1):
+                    break
+
+        self._last_position = uv_max
+        return hm, uv_max
+
+
+    def detect(self, frame, is_bgr=False, do_display_detection=False, center=None):
         # detect crawler
-        crop_frame, frame_tensor = self._preprocess_frame(frame, is_bgr)
+        crop_frame, frame_tensor, uv_top = self._preprocess_frame(frame, is_bgr, center)
         hm, uv_max, prob, elapsed_time = self._detect_crawler(frame_tensor)
 
         # filter prob
         final_prob = self._filter_prob(prob) if self._do_filter_prob else prob
 
-        # display detection
-        if do_display_detection:
-            self._display_center(crop_frame, uv_max, final_prob, elapsed_time)
+        if prob is None or prob <= self._prob_treshold:
+            uv_max = (-1, -1)
 
-        # update prob filter
-        if self._do_filter_prob:
-            self._update_prob_filter(prob)
+        else:
+            # display detection
+            if do_display_detection:
+                self._display_center(crop_frame, uv_max, final_prob, elapsed_time)
 
-	# return values
-	if prob is not None and prob <= self._prob_treshold:
-	    uv_max = (-1,-1)
+            # update prob filter
+            if self._do_filter_prob:
+                self._update_prob_filter(prob)
+
+            # add offset
+            uv_max[0] += uv_top[0]
+            uv_max[1] += uv_top[1]
 
         return hm, uv_max
 
-    def _preprocess_frame(self, frame, is_bgr):
+    def _preprocess_frame(self, frame, is_bgr, center=None):
         # resize frame to half
         frame = cv2.resize(frame, (self._opt.image_size_w, self._opt.image_size_h))
 
         # crop frame to network size
-        crop_top = int((self._opt.image_size_h-self._opt.net_image_size)/2.0)
-        crop_left = int((self._opt.image_size_w - self._opt.net_image_size) / 2.0)
-        crop_frame = frame[crop_top:crop_top+self._opt.net_image_size, crop_left:crop_left+self._opt.net_image_size]
+        if center is None:
+            crop_top = int((self._opt.image_size_h-self._opt.net_image_size)/2.0)
+            crop_left = int((self._opt.image_size_w - self._opt.net_image_size) / 2.0)
+        else:
+            crop_top, crop_left = self._top_coords_crop_with_center(center)
+        crop_frame = frame[crop_top:crop_top + self._opt.net_image_size, crop_left:crop_left + self._opt.net_image_size]
 
         # convert to pytorch tensor and add batch dimension
         frame_tensor = crop_frame.copy()
@@ -54,7 +79,22 @@ class CrawlerDetector:
             frame_tensor = cv2.cvtColor(frame_tensor, cv2.COLOR_BGR2RGB)
         frame_tensor = torch.unsqueeze(self._img2tensor(frame_tensor), 0)
 
-        return crop_frame, frame_tensor
+        return crop_frame, frame_tensor, (crop_left, crop_top)
+
+    def _yield_patches_from_frame(self, frame):
+        limit_i = self._opt.image_size_h-self._opt.net_image_size
+        limit_j = self._opt.image_size_w-self._opt.net_image_size
+        img_size = self._opt.net_image_size
+        for i in range(0, limit_i, self._slw_jump):
+            for j in range(0, limit_j, self._slw_jump):
+                yield frame[i:i+img_size, j:j+img_size]
+
+    def _top_coords_crop_with_center(self, center):
+        u, v = center[0], center[1]
+        rad = self._opt.net_image_size/2
+        top_u = np.clip(u, rad, self._opt.image_size_w - rad) - rad
+        top_v = np.clip(u, rad, self._opt.image_size_h - rad) - rad
+        return (top_u, top_v)
 
     def _detect_crawler(self, frame_tensor):
         # bb as (top, left, bottom, right)
